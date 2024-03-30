@@ -74,8 +74,10 @@ runcmd(struct cmd *cmd)
     if(ecmd->argv[0] == 0)
       exit(0);
     /* MARK START task2
-     * TAREFA2: Implemente codigo abaixo para executar
+     * TAREFA2: Implemente coddadasigo abaixo para executar
      * comandos simples. */
+    printf("Args %c %c\n\n", ecmd->argv[0], ecmd->argv[1] );
+    execvp(ecmd->argv[0], ecmd->argv);
     fprintf(stderr, "exec nao implementado\n");
     /* MARK END task2 */
     break;
@@ -127,10 +129,16 @@ main(void)
     /* TAREFA1: O que faz o if abaixo e por que ele é necessário?
      * Insira sua resposta no código e modifique o fprintf abaixo
      * para reportar o erro corretamente. */
+
+    // Resposta:
+    // Implementa o comando 'cd'. Ele verifica se foi digitado 'cd ' para entrar no primeiro 'if'.
+    // Após isso, o ultimo caractere do buffer é setado como 0 e verificado abaixo se a troca para o diretorio especificado é valida (deve retornar 0). Assim, o erro deve reportar que não foi possível ir para o diretorio especificado.
+
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
       buf[strlen(buf)-1] = 0;
+      printf("BUF %s\n", buf+3);
       if(chdir(buf+3) < 0)
-        fprintf(stderr, "reporte erro\n");
+        fprintf(stderr, "Digite o caminho desejado no seguinte formato 'cd <diretorio desejado>'em que o <diretorio desejado> deve ser um caminho válido não vazio.\n");
       continue;
     }
     /* MARK END task1 */
