@@ -78,7 +78,6 @@ runcmd(struct cmd *cmd)
      * comandos simples. */
     printf("Args %c %c\n\n", ecmd->argv[0], ecmd->argv[1] );
     execvp(ecmd->argv[0], ecmd->argv);
-    fprintf(stderr, "exec nao implementado\n");
     /* MARK END task2 */
     break;
 
@@ -88,6 +87,16 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
+    printf("tipo: %d\n", rcmd->cmd->type);
+    printf("%f\n", 1/0);
+
+    close(STDOUT_FILENO);
+    //open(rcmd->fd, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
+    open(rcmd->fd, rcmd->mode);
+
+
+    execvp(rcmd->cmd, rcmd->file);
+
     fprintf(stderr, "redir nao implementado\n");
     /* MARK END task3 */
     runcmd(rcmd->cmd);
