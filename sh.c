@@ -9,8 +9,7 @@
 #include <sys/wait.h>
 
 /* MARK NAME Francisco Teixeira Rocha Aragão - 2021031726 */
-/* MARK NAME Gabriel Pains de Olveira Cardoso ---------------------------------------- */
-/* MARK NAME E Etc */
+/* MARK NAME Gabriel Pains de Olveira Cardoso - 2021096887 */
 
 /****************************************************************
  * Shell xv6 simplificado
@@ -74,9 +73,8 @@ runcmd(struct cmd *cmd)
     if(ecmd->argv[0] == 0)
       exit(0);
     /* MARK START task2
-     * TAREFA2: Implemente coddadasigo abaixo para executar
+     * TAREFA2: Implemente código abaixo para executar
      * comandos simples. */
-    printf("Args %c %c\n\n", ecmd->argv[0], ecmd->argv[1] );
     execvp(ecmd->argv[0], ecmd->argv);
     /* MARK END task2 */
     break;
@@ -145,9 +143,9 @@ main(void)
 
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
       buf[strlen(buf)-1] = 0;
-      printf("BUF %s\n", buf+3);
+      
       if(chdir(buf+3) < 0)
-        fprintf(stderr, "Digite o caminho desejado no seguinte formato 'cd <diretorio desejado>'em que o <diretorio desejado> deve ser um caminho válido não vazio.\n");
+        fprintf(stderr, "cd: %s: caminho ou diretório não encontrado. O diretório desejado deve ser um caminho válido não vazio.\n", buf+3);
       continue;
     }
     /* MARK END task1 */
