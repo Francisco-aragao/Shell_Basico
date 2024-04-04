@@ -9,7 +9,7 @@
 #include <sys/wait.h>
 
 /* MARK NAME Francisco Teixeira Rocha Aragão - 2021031726 */
-/* MARK NAME Gabriel Pains de Olveira Cardoso - 2021096887 */
+/* MARK NAME Gabriel Pains de Oliveira Cardoso - 2021096887 */
 
 /****************************************************************
  * Shell xv6 simplificado
@@ -52,8 +52,7 @@ int fork1(void);  // Fork mas fechar se ocorrer erro.
 struct cmd *parsecmd(char*); // Processar o linha de comando.
 
 /* Executar comando cmd.  Nunca retorna. */
-void
-runcmd(struct cmd *cmd)
+__attribute__((noreturn)) void runcmd(struct cmd *cmd)
 {
   int p[2], r;
   struct execcmd *ecmd;
@@ -85,19 +84,16 @@ runcmd(struct cmd *cmd)
     /* MARK START task3
      * TAREFA3: Implemente codigo abaixo para executar
      * comando com redirecionamento. */
-    printf("tipo: %d\n", rcmd->cmd->type);
-    printf("%f\n", 1/0);
+    // 0644 = -rw-r--r--
+    close(rcmd->fd);
+    r = open(rcmd->file, rcmd->mode, 0644);
 
-    close(STDOUT_FILENO);
-    //open(rcmd->fd, O_CREAT|O_WRONLY|O_TRUNC, S_IRWXU);
-    open(rcmd->fd, rcmd->mode);
+    if (r >= 0)
+      runcmd(rcmd->cmd);
 
-
-    execvp(rcmd->cmd, rcmd->file);
-
-    fprintf(stderr, "redir nao implementado\n");
+    fprintf(stderr, "Não foi possível abrir o arquivo: %s\n", rcmd->file);
+    exit(1);
     /* MARK END task3 */
-    runcmd(rcmd->cmd);
     break;
 
   case '|':
@@ -105,10 +101,45 @@ runcmd(struct cmd *cmd)
     /* MARK START task4
      * TAREFA4: Implemente codigo abaixo para executar
      * comando com pipes. */
-    fprintf(stderr, "pipe nao implementado\n");
+    if (pipe(p) < 0) {
+      fprintf(stderr, "Não foi possível criar um PIPE\n");
+      exit(3);
+    }
+    
+    // Após o pipe(p)
+    // o que a gente escrever em p[1] pode ser lido em p[0]
+
+    switch (fork()) {
+      case -1:
+        fprintf(stderr, "Não foi possível criar um fork do processo do shell\n");
+        exit(2);
+        break;
+      
+      // Filho executa comando esquerdo
+      case 0:
+        close(STDOUT_FILENO);       
+        dup(p[1]);      // STDOUT do lado esquerdo eh p[1]
+        close(p[1]);
+        close(p[0]);
+
+        runcmd(pcmd->left);         
+        break;
+
+      // Pai executa comando direito
+      default:
+        close(STDIN_FILENO);
+        dup(p[0]);      // STDIN do lado direito eh p[0]
+        close(p[0]);
+        close(p[1]);
+
+        runcmd(pcmd->right);
+        break;
+    }
+  
     /* MARK END task4 */
     break;
-  }    
+  }   
+   
   exit(0);
 }
 
@@ -138,10 +169,15 @@ main(void)
      * para reportar o erro corretamente. */
 
     // Resposta:
-    // Implementa o comando 'cd'. Ele verifica se foi digitado 'cd ' para entrar no primeiro 'if'.
-    // Após isso, o ultimo caractere do buffer é setado como 0 e verificado abaixo se a troca para o diretorio especificado é valida (deve retornar 0). Assim, o erro deve reportar que não foi possível ir para o diretorio especificado.
+    // Implementa o comando 'cd'. 
+    // Não existe um binário chamado 'cd' que precisa ser executado para mudar de diretório, em vez disso
+    // a chamada de sistema chdir muda o diretório do processo atual, que é o próprio shell.
+    // O if verifica se foi digitado 'cd ' para entrar no primeiro 'if'.
+    // Após isso, o ultimo caractere do buffer é definido como 0, para garantir o fim de string.
+    // Depois é verificado abaixo se a troca para o diretorio especificado é valida (deve retornar 0). 
+    // Assim, o erro deve reportar que não foi possível ir para o diretorio especificado.
 
-    if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
+    if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' ') {
       buf[strlen(buf)-1] = 0;
       
       if(chdir(buf+3) < 0)
