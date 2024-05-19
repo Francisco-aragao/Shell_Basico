@@ -1,6 +1,3 @@
-This is the repository with skeleton source code for DCC605's simple
-shell programming assignment.  Please check the [Google Docs][1]
-with the full assignment. 
+Operating Systems job repository. The goal of this work is to build a small "copy" of the shell, implementing some of its commands such as "cat", "pipe" and "ls". 
 
- [1]: https://docs.google.com/document/d/14cl6I8xLJD6dnet3fEEFEqtpZkK7TYS4hoq9nBqoKVg/edit?usp=sharing
-
+The code was written in C.
